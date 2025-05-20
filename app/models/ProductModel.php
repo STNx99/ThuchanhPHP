@@ -1,69 +1,93 @@
 <?php
-
 class ProductModel
 {
-    private $ID;
-    private $Name;
-    private $Description;
-    private $Price;
-    private $Image;
-
-    public function __construct($ID, $Name, $Description, $Price, $Image = null)
+    private $conn;
+    private $table_name = "product";
+    public function __construct($db)
     {
-        $this -> ID = $ID;
-        $this -> Name = $Name;
-        $this -> Description = $Description;
-        $this -> Price = $Price;
-        $this -> Image = $Image;
+        $this->conn = $db;
     }
-
-    public function getID()
+    public function getProducts()
     {
-        return $this -> ID;
+        $query = "SELECT p.id, p.name, p.description, p.price, c.name as category_name, p.image as image_url
+                 FROM " . $this->table_name . " p
+                 LEFT JOIN category c ON p.category_id = c.id";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $result;
     }
-
-    public function setID($ID)
+    public function getProductById($id)
     {
-        $this -> ID = $ID;
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_OBJ);
+        return $result;
     }
-
-    public function getName()
+    public function addProduct($name, $description, $price, $category_id, $image)
     {
-        return $this -> Name;
+        $errors = [];
+        if (empty($name)) {
+            $errors['name'] = 'Tên sản phẩm không được để trống';
+        }
+        if (empty($description)) {
+            $errors['description'] = 'Mô tả không được để trống';
+        }
+        if (!is_numeric($price) || $price < 0) {
+            $errors['price'] = 'Giá sản phẩm không hợp lệ';
+        }
+
+        if (count($errors) > 0) {
+            return $errors;
+        }
+        $query = "INSERT INTO " . $this->table_name . " (name, description, price, category_id, image) VALUES (:name, :description, :price, :category_id, :image)";
+        $stmt = $this->conn->prepare($query);
+        $name = htmlspecialchars(strip_tags((string)$name));
+        $description = htmlspecialchars(strip_tags((string)$description));
+        $price = htmlspecialchars(strip_tags((string)$price));
+        $category_id = htmlspecialchars(strip_tags((string)$category_id));
+        $image = htmlspecialchars(strip_tags((string)$image));
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':image', $image);
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
     }
-
-    public function setName($Name)
+    public function updateProduct($id, $name, $description, $price, $category_id, $image)
     {
-        $this -> Name = $Name;
+        $query = "UPDATE " . $this->table_name . " SET name=:name, description=:description, price=:price, category_id=:category_id, image=:image WHERE id=:id";
+        $stmt = $this->conn->prepare($query);
+        $name = htmlspecialchars(strip_tags((string)$name));
+        $description = htmlspecialchars(strip_tags((string)$description));
+        $price = htmlspecialchars(strip_tags((string)$price));
+        $category_id = htmlspecialchars(strip_tags((string)$category_id));
+        $image = htmlspecialchars(strip_tags((string)$image));
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':image', $image);
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
     }
-
-    public function getDescription()
+    public function deleteProduct($id)
     {
-        return $this -> Description;
-    }
-
-    public function setDescription($Description)
-    {
-        $this -> Description = $Description;
-    }
-
-    public function getPrice()
-    {
-        return $this -> Price;
-    }
-
-    public function setPrice($Price)
-    {
-        $this -> Price = $Price;
-    }
-
-    public function getImage()
-    {
-        return $this -> Image;
-    }
-
-    public function setImage($Image)
-    {
-        $this -> Image = $Image;
+        $query = "DELETE FROM " . $this->table_name . " WHERE id=:id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
     }
 }
