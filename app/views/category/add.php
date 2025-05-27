@@ -1,20 +1,27 @@
 <?php include 'app/views/shares/header.php'; ?>
-<div class="container mt-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/webbanhang/category">Danh mục</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Thêm danh mục mới</li>
+<div class="max-w-4xl mx-auto px-4 py-6">
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/webbanhang/category" class="text-blue-600 hover:text-blue-800">Danh mục</a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                    <span class="text-gray-500">Thêm danh mục mới</span>
+                </div>
+            </li>
         </ol>
     </nav>
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-success text-white">
-            <h1 class="h3 mb-0">Thêm danh mục mới</h1>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="bg-green-500 text-white px-6 py-4 rounded-t-lg">
+            <h1 class="text-2xl font-semibold">Thêm danh mục mới</h1>
         </div>
-        <div class="card-body">
+        <div class="p-6">
             <?php if (!empty($errors)): ?>
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                    <ul class="list-disc list-inside">
                         <?php foreach ($errors as $error): ?>
                             <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
                         <?php endforeach; ?>
@@ -22,28 +29,32 @@
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="/webbanhang/Category/save" onsubmit="return validateForm();" class="needs-validation" novalidate>
-                <div class="form-floating mb-3">
-                    <input type="text" id="name" name="name" class="form-control form-control-lg"
+            <form method="POST" action="/webbanhang/Category/save" onsubmit="return validateForm();" class="space-y-6">
+                <div class="space-y-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700">Tên danh mục</label>
+                    <input type="text" id="name" name="name" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
                         value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8') : ''; ?>"
                         placeholder="Nhập tên danh mục" required>
-                    <label for="name">Tên danh mục</label>
-                    <div class="invalid-feedback">Vui lòng nhập tên danh mục.</div>
+                    <div class="text-red-500 text-sm hidden" id="name-error">Vui lòng nhập tên danh mục.</div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="description" class="form-label">Mô tả:</label>
-                    <textarea id="description" name="description" class="form-control form-control-lg"
+                <div class="space-y-2">
+                    <label for="description" class="block text-sm font-medium text-gray-700">Mô tả</label>
+                    <textarea id="description" name="description" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
                         rows="5" placeholder="Nhập mô tả chi tiết về danh mục" required><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
-                    <div class="invalid-feedback">Vui lòng nhập mô tả danh mục.</div>
+                    <div class="text-red-500 text-sm hidden" id="description-error">Vui lòng nhập mô tả danh mục.</div>
                 </div>
 
-                <div class="d-grid gap-2 d-md-flex justify-content-md-between mt-4">
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-plus-circle me-2"></i> Thêm danh mục
+                <div class="flex flex-col md:flex-row justify-between gap-4 pt-4">
+                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg flex items-center justify-center space-x-2 transition duration-200">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Thêm danh mục</span>
                     </button>
-                    <a href="/webbanhang/Category/" class="btn btn-outline-secondary btn-lg">
-                        <i class="fas fa-arrow-left me-2"></i> Quay lại
+                    <a href="/webbanhang/Category/" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg flex items-center justify-center space-x-2 transition duration-200">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Quay lại</span>
                     </a>
                 </div>
             </form>
@@ -52,42 +63,30 @@
 </div>
 
 <script>
-    // Example starter JavaScript for disabling form submissions if there are invalid fields
-    (function() {
-        'use strict'
-
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.querySelectorAll('.needs-validation')
-
-        // Loop over them and prevent submission
-        Array.prototype.slice.call(forms)
-            .forEach(function(form) {
-                form.addEventListener('submit', function(event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-
-                    form.classList.add('was-validated')
-                }, false)
-            })
-    })()
-
     function validateForm() {
         const name = document.getElementById('name').value.trim();
         const description = document.getElementById('description').value.trim();
+        let isValid = true;
+
+        // Reset error states
+        document.getElementById('name').classList.remove('border-red-500');
+        document.getElementById('description').classList.remove('border-red-500');
+        document.getElementById('name-error').classList.add('hidden');
+        document.getElementById('description-error').classList.add('hidden');
 
         if (!name) {
-            alert('Vui lòng nhập tên danh mục');
-            return false;
+            document.getElementById('name').classList.add('border-red-500');
+            document.getElementById('name-error').classList.remove('hidden');
+            isValid = false;
         }
 
         if (!description) {
-            alert('Vui lòng nhập mô tả danh mục');
-            return false;
+            document.getElementById('description').classList.add('border-red-500');
+            document.getElementById('description-error').classList.remove('hidden');
+            isValid = false;
         }
 
-        return true;
+        return isValid;
     }
 </script>
 
