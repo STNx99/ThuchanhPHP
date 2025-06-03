@@ -71,25 +71,15 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Hình ảnh sản phẩm:</label>
-                        <?php if (!empty($product->image_url)): ?>
-                            <div class="mb-4">
-                                <img src="<?php echo htmlspecialchars($product->image_url, ENT_QUOTES, 'UTF-8'); ?>" 
-                                     alt="<?php echo htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8'); ?>" 
-                                     class="w-48 h-48 object-cover rounded-lg shadow-md">
-                            </div>
-                        <?php endif; ?>
-                        <label for="product_image" class="block text-sm font-medium text-gray-700 mb-2">Cập nhật hình ảnh:</label>
-                        <input type="file" id="product_image" name="product_image" 
+                        <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Hình ảnh sản phẩm:</label>
+                        <input type="file" id="image" name="image" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" 
-                               accept="image/*">
-                        <?php if (!empty($product->image_url)): ?>
-                            <p class="text-sm text-gray-500 mt-2">Để trống nếu không muốn thay đổi ảnh</p>
-                        <?php endif; ?>
+                               accept="image/*" value="<?php echo htmlspecialchars($product->image, ENT_QUOTES, 'UTF-8'); ?>">
+                        <p class="text-sm text-gray-500 mt-2">Chọn file ảnh định dạng JPG, PNG hoặc GIF (tối đa 10MB).</p>
                     </div>
 
                     <div class="flex flex-col md:flex-row justify-between gap-4 pt-6 border-t border-gray-200">
-                        <a href="/webbanhang/Product/list" class="inline-flex items-center justify-center px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition duration-200">
+                        <a href="/webbanhang/Product" class="inline-flex items-center justify-center px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition duration-200">
                             <i class="fas fa-arrow-left mr-2"></i>Quay lại danh sách sản phẩm
                         </a>
                         <button type="submit" class="inline-flex items-center justify-center px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200">

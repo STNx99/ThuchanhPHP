@@ -5,10 +5,20 @@ require_once('app/models/ProductModel.php');
 require_once('app/models/CategoryModel.php');
 class ProductController
 {
+    private function isAdmin()
+    {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        return isset($_SESSION['role']) && $_SESSION['role'] == 'admin';
+    }
     private $productModel;
     private $db;
     public function __construct()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         $this->db = (new Database())->getConnection();
         $this->productModel = new ProductModel($this->db);
     }
@@ -28,6 +38,10 @@ class ProductController
     }
     public function add()
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         $categories = (new CategoryModel($this->db))->getCategories();
         include_once 'app/views/product/add.php';
     }
@@ -62,6 +76,10 @@ class ProductController
     }
     public function edit($id)
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         $product = $this->productModel->getProductById($id);
         $categories = (new CategoryModel($this->db))->getCategories();
         if ($product) {
@@ -72,6 +90,10 @@ class ProductController
     }
     public function update()
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'];
             $name = $_POST['name'];
@@ -101,6 +123,10 @@ class ProductController
 
     public function delete($id)
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         if ($this->productModel->deleteProduct($id)) {
             header('Location: /webbanhang/Product');
         } else {
@@ -109,6 +135,10 @@ class ProductController
     }
     private function uploadImage($file)
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/webbanhang/uploads/";
         if (!is_dir($target_dir)) {
             mkdir($target_dir, 0777, true);

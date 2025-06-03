@@ -6,8 +6,20 @@ class CategoryController
 {
     private $categoryModel;
     private $db;
+
+    private function isAdmin()
+    {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        return isset($_SESSION['role']) && $_SESSION['role'] == 'admin';
+    }
+    
     public function __construct()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         $this->db = (new Database())->getConnection();
         $this->categoryModel = new CategoryModel($this->db);
     }
@@ -21,6 +33,10 @@ class CategoryController
 
     public function list()
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         $categories = $this->categoryModel->getCategories();
         include 'app/views/category/list.php';
     }
@@ -37,11 +53,19 @@ class CategoryController
 
     public function add()
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         include_once 'app/views/category/add.php';
     }
 
     public function save()
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'] ?? '';
             $description = $_POST['description'] ?? '';
@@ -59,6 +83,10 @@ class CategoryController
 
     public function edit($id)
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         $category = $this->categoryModel->getCategoryById($id);
         if ($category) {
             include 'app/views/category/edit.php';
@@ -69,6 +97,10 @@ class CategoryController
 
     public function update()
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'];
             $name = $_POST['name'];
@@ -85,6 +117,10 @@ class CategoryController
 
     public function delete($id)
     {
+        if (!$this->isAdmin()) {
+            header('Location: /webbanhang/account/authorize');
+            exit;
+        }
         if ($this->categoryModel->deleteCategory($id)) {
             header('Location: /webbanhang/category');
         } else {
