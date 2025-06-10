@@ -30,6 +30,7 @@
                     <i class="fas fa-arrow-left"></i>
                     <span>Quay lại danh sách</span>
                 </a>
+                <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
                 <a href="/webbanhang/category/edit/<?php echo $category->id; ?>" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition duration-200">
                     <i class="fas fa-edit"></i>
                     <span>Sửa danh mục</span>
@@ -39,6 +40,7 @@
                     <i class="fas fa-trash"></i>
                     <span>Xóa danh mục</span>
                 </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

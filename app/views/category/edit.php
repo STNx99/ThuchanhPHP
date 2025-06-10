@@ -19,17 +19,12 @@
             <h1 class="text-2xl font-semibold">Sửa danh mục</h1>
         </div>
         <div class="p-6">
-            <?php if (!empty($errors)): ?>
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-                    <ul class="list-disc list-inside">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
+            <div id="error-container" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <ul id="error-list" class="list-disc list-inside">
+                </ul>
+            </div>
 
-            <form method="POST" action="/webbanhang/Category/update" onsubmit="return validateForm();" class="space-y-6">
+            <form id="edit-category-form" class="space-y-6">
                 <input type="hidden" name="id" value="<?php echo $category->id; ?>">
 
                 <div class="space-y-2">
@@ -65,6 +60,33 @@
 </div>
 
 <script>
+    function showErrors(errors) {
+        const errorContainer = document.getElementById('error-container');
+        const errorList = document.getElementById('error-list');
+        
+        errorList.innerHTML = '';
+        if (Array.isArray(errors)) {
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+        } else if (typeof errors === 'object') {
+            Object.values(errors).forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+        }
+        
+        errorContainer.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function hideErrors() {
+        document.getElementById('error-container').classList.add('hidden');
+    }
+
     function validateForm() {
         const name = document.getElementById('name').value.trim();
         const description = document.getElementById('description').value.trim();
@@ -90,6 +112,47 @@
 
         return isValid;
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('edit-category-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            hideErrors();
+            
+            const categoryId = <?php echo $category->id; ?>;
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                description: document.getElementById('description').value.trim()
+            };
+            
+            fetch(`/webbanhang/api/category/${categoryId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Category updated successfully') {
+                    alert('Cập nhật danh mục thành công!');
+                    window.location.href = '/webbanhang/Category';
+                } else if (data.errors) {
+                    showErrors(data.errors);
+                } else {
+                    showErrors(['Cập nhật danh mục thất bại']);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrors(['Có lỗi xảy ra khi cập nhật danh mục']);
+            });
+        });
+    });
 </script>
 
 <?php include 'app/views/shares/footer.php'; ?>

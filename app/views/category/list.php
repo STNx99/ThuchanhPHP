@@ -30,13 +30,16 @@
                             <a href="/webbanhang/category/show/<?php echo $category->id; ?>" class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-2 rounded text-sm text-center transition duration-200">
                                 <i class="fas fa-eye"></i> Chi tiết
                             </a>
+                            <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
                             <a href="/webbanhang/category/edit/<?php echo $category->id; ?>" class="flex-1 bg-yellow-50 hover:bg-yellow-100 text-yellow-600 px-3 py-2 rounded text-sm text-center transition duration-200">
                                 <i class="fas fa-edit"></i> Sửa
                             </a>
+                            
                             <a href="/webbanhang/category/delete/<?php echo $category->id; ?>" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded text-sm text-center transition duration-200"
                                 onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
                                 <i class="fas fa-trash"></i> Xóa
                             </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

@@ -19,22 +19,16 @@
             <h1 class="text-2xl font-semibold">Thêm danh mục mới</h1>
         </div>
         <div class="p-6">
-            <?php if (!empty($errors)): ?>
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-                    <ul class="list-disc list-inside">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
+            <div id="error-container" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <ul id="error-list" class="list-disc list-inside">
+                </ul>
+            </div>
 
-            <form method="POST" action="/webbanhang/Category/save" onsubmit="return validateForm();" class="space-y-6">
+            <form id="add-category-form" class="space-y-6">
                 <div class="space-y-2">
                     <label for="name" class="block text-sm font-medium text-gray-700">Tên danh mục</label>
                     <input type="text" id="name" name="name" 
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
-                        value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8') : ''; ?>"
                         placeholder="Nhập tên danh mục" required>
                     <div class="text-red-500 text-sm hidden" id="name-error">Vui lòng nhập tên danh mục.</div>
                 </div>
@@ -43,7 +37,7 @@
                     <label for="description" class="block text-sm font-medium text-gray-700">Mô tả</label>
                     <textarea id="description" name="description" 
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
-                        rows="5" placeholder="Nhập mô tả chi tiết về danh mục" required><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+                        rows="5" placeholder="Nhập mô tả chi tiết về danh mục" required></textarea>
                     <div class="text-red-500 text-sm hidden" id="description-error">Vui lòng nhập mô tả danh mục.</div>
                 </div>
 
@@ -63,6 +57,33 @@
 </div>
 
 <script>
+    function showErrors(errors) {
+        const errorContainer = document.getElementById('error-container');
+        const errorList = document.getElementById('error-list');
+        
+        errorList.innerHTML = '';
+        if (Array.isArray(errors)) {
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+        } else if (typeof errors === 'object') {
+            Object.values(errors).forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+        }
+        
+        errorContainer.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function hideErrors() {
+        document.getElementById('error-container').classList.add('hidden');
+    }
+
     function validateForm() {
         const name = document.getElementById('name').value.trim();
         const description = document.getElementById('description').value.trim();
@@ -88,6 +109,46 @@
 
         return isValid;
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('add-category-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            hideErrors();
+            
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                description: document.getElementById('description').value.trim()
+            };
+            
+            fetch('/webbanhang/api/category', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Category created successfully') {
+                    alert('Thêm danh mục thành công!');
+                    window.location.href = '/webbanhang/Category';
+                } else if (data.errors) {
+                    showErrors(data.errors);
+                } else {
+                    showErrors(['Thêm danh mục thất bại']);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrors(['Có lỗi xảy ra khi thêm danh mục']);
+            });
+        });
+    });
 </script>
 
 <?php include 'app/views/shares/footer.php'; ?>

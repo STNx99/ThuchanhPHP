@@ -15,65 +15,55 @@
                 <h1 class="text-2xl font-bold">Thêm sản phẩm mới</h1>
             </div>
             <div class="p-8">
-                <?php if (!empty($errors)): ?>
-                    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-exclamation-circle text-red-400"></i>
-                            </div>
-                            <div class="ml-3">
-                                <ul class="text-sm text-red-700 space-y-1">
-                                    <?php foreach ($errors as $error): ?>
-                                        <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
+                <div id="error-container" class="hidden bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <ul id="error-list" class="text-sm text-red-700 space-y-1">
+                            </ul>
                         </div>
                     </div>
-                <?php endif; ?>
+                </div>
 
-                <form method="POST" action="/webbanhang/Product/save" onsubmit="return validateForm();" enctype="multipart/form-data" class="space-y-6">
+                <form id="add-product-form" enctype="multipart/form-data" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Tên sản phẩm:</label>
-                            <input type="text" id="name" name="name" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" 
-                                   placeholder="Nhập tên sản phẩm" required>
+                            <input type="text" id="name" name="name"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                                placeholder="Nhập tên sản phẩm" required>
                         </div>
-                        
+
                         <div>
                             <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Giá (VNĐ):</label>
-                            <input type="number" id="price" name="price" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" 
-                                   step="0.01" placeholder="Nhập giá sản phẩm" required>
+                            <input type="number" id="price" name="price"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                                step="0.01" placeholder="Nhập giá sản phẩm" required>
                         </div>
                     </div>
 
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Mô tả:</label>
-                        <textarea id="description" name="description" 
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" 
-                                  rows="5" placeholder="Nhập mô tả chi tiết về sản phẩm" required></textarea>
+                        <textarea id="description" name="description"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                            rows="5" placeholder="Nhập mô tả chi tiết về sản phẩm" required></textarea>
                     </div>
 
                     <div>
                         <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">Danh mục:</label>
-                        <select id="category_id" name="category_id" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" required>
+                        <select id="category_id" name="category_id"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" required>
                             <option value="" selected disabled>-- Chọn danh mục --</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?php echo $category->id; ?>">
-                                    <?php echo htmlspecialchars($category->name, ENT_QUOTES, 'UTF-8'); ?>
-                                </option>
-                            <?php endforeach; ?>
                         </select>
                     </div>
 
                     <div>
                         <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Hình ảnh sản phẩm:</label>
-                        <input type="file" id="image" name="image" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" 
-                               accept="image/*">
+                        <input type="file" id="image" name="image"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                            accept="image/*">
                         <p class="text-sm text-gray-500 mt-2">Chọn file ảnh định dạng JPG, PNG hoặc GIF (tối đa 10MB).</p>
                     </div>
 
@@ -92,34 +82,76 @@
 </div>
 
 <script>
-    function validateForm() {
-        const name = document.getElementById('name').value.trim();
-        const description = document.getElementById('description').value.trim();
-        const price = document.getElementById('price').value;
-        const category = document.getElementById('category_id').value;
-
-        if (!name) {
-            alert('Vui lòng nhập tên sản phẩm');
-            return false;
+    function showErrors(errors) {
+        const errorContainer = document.getElementById('error-container');
+        const errorList = document.getElementById('error-list');
+        
+        errorList.innerHTML = '';
+        if (Array.isArray(errors)) {
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+        } else if (typeof errors === 'object') {
+            Object.values(errors).forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
         }
-
-        if (!description) {
-            alert('Vui lòng nhập mô tả sản phẩm');
-            return false;
-        }
-
-        if (!price || price <= 0) {
-            alert('Vui lòng nhập giá sản phẩm hợp lệ');
-            return false;
-        }
-
-        if (!category) {
-            alert('Vui lòng chọn danh mục');
-            return false;
-        }
-
-        return true;
+        
+        errorContainer.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    function hideErrors() {
+        document.getElementById('error-container').classList.add('hidden');
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Load categories via API
+        fetch('/webbanhang/api/category')
+            .then(response => response.json())
+            .then(data => {
+                const categorySelect = document.getElementById('category_id');
+                data.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading categories:', error);
+                showErrors(['Không thể tải danh sách danh mục']);
+            });
+        // Handle form submission
+        document.getElementById('add-product-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            hideErrors();
+            const formData = new FormData(this);
+            fetch('/webbanhang/api/product', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Product created successfully') {
+                    alert('Thêm sản phẩm thành công!');
+                    window.location.href = '/webbanhang/Product';
+                } else if (data.errors) {
+                    showErrors(data.errors);
+                } else {
+                    showErrors(['Thêm sản phẩm thất bại']);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrors(['Có lỗi xảy ra khi thêm sản phẩm']);
+            });
+        });
+    });
 </script>
 
 <?php include 'app/views/shares/footer.php'; ?>

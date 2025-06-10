@@ -46,10 +46,12 @@
                         </span>
                     </div>                                                                                                                                                                           
                     <div class="flex gap-4">
+                        <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
                         <a href="/webbanhang/Product/edit/<?php echo $product->id; ?>" 
                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-medium transition duration-200">
                             Chỉnh sửa
                         </a>
+                        <?php endif; ?>
                         <a href="/webbanhang/Product/addToCart/<?php echo $product->id; ?>"
                            class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition duration-200">
                             Thêm vào giỏ hàng
